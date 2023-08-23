@@ -2,12 +2,11 @@
 #define _SHELL_
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <unistd.h>
+#include <string.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-
-void exe(char **argv);
-char *get_path(char *comm);
-
+void get_line(char *line, size_t size);
+void parse_line(char *line, char **args);
+int execute(char **args);
 #endif
