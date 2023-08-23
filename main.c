@@ -11,7 +11,7 @@ int execute(char **args);
  *
  * Return: ***
  */
-int main()
+int main(void)
 {
 	char *line;
 	char **args;
@@ -32,7 +32,7 @@ int main()
 		free(args);
 	}
 
-	return 0;
+	return (0);
 }
 /**
  * get_line - ***
@@ -55,16 +55,17 @@ void get_line(char *line, size_t size)
  */
 void parse_line(char *line, char **args)
 {
-	int i = 0;
-	for (char *token = strtok(line, " "); token != NULL; token = strtok(NULL, " "))
-	{
-		args[i] = token;
-		i++;
-	}
-	args[i] = NULL;
+int i = 0;
+
+for (char *token = strtok(line, " "); token != NULL; token = strtok(NULL, " "))
+{
+args[i] = token;
+i++;
+}
+args[i] = NULL;
 }
 /**
- * main - ***
+ * execute - ***
  * @args: ***
  *
  * Return: ***
@@ -73,7 +74,7 @@ int execute(char **args)
 {
 	if (strcmp(args[0], "exit") == 0)
 	{
-		return 0;
+		return (0);
 	}
 	else if (strcmp(args[0], "env") == 0)
 	{
@@ -81,10 +82,10 @@ int execute(char **args)
 		{
 			printf("%s\n", *env);
 		}
-		return 1;
+		return (1);
 	}
 	else
 	{
-		return execve(args[0], args, environ);
+		return (execve(args[0], args, environ));
 	}
 }
