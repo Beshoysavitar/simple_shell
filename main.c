@@ -82,7 +82,7 @@ int main(int ac, char **argv)
 	(void)argv;
 	while (1)
 	{
-		nchars_read = get_line("$ ", lin, 1024);
+		nchars_read = get_line("#cisfun$ ", lin, 1024);
 		if (nchars_read == -1)
 		{
 			printf("Exiting\n");
