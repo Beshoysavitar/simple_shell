@@ -73,7 +73,7 @@ int main(int argc, char **argv)
 		if (isatty(fileno(stdin)))
 		{
 			p = 1;
-			_puts("cisfun#: ");
+			puts("cisfun#: ");
 		}
 
 		getline(&b, &buf, stdin);

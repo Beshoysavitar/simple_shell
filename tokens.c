@@ -29,8 +29,8 @@ char **Tokens(char *i)
 {
 int x = 0;
 const char sep[] = " ";
-int sp = _spaces(i);
-char **tokens = malloc(sizeof(char *) * (sp + 1));
+int spa = sp(i);
+char **tokens = malloc(sizeof(char *) * (spa + 1));
 char *token;
 
 if (!tokens)
