@@ -1,86 +1,106 @@
 #include "shell.h"
 
 /**
- * exe - ***
- * @x: ***
- * Return: ***
+ * get_line - Get a line from the user.
+ * @prompt: The prompt to display to the user.
+ * @line: The buffer to store the line in.
+ * @q: The size of the buffer.
+ *
+ * Return: the number of characters read, or -1 on error.
  */
-int exe(char **x)
+static ssize_t get_line(const char *prompt, char *line, size_t q)
 {
+	ssize_t nchars_read;
 
-	pid_t i;
-	int stat;
-
-	if (strncmp("exit", x[0], 4) == 0)
+	printf("%s", prompt);
+	nchars_read = getline(&line, &q, stdin);
+	if (nchars_read == -1)
+	{
+		perror("error");
 		return (-1);
-
-	i = fork();
-
-	if (i == -1)
-	{
-		perror("Error");
-		return (1);
 	}
-	else if (i == 0)
-	{
-		if (execve(x[0], x, NULL) == -1)
-		{
-			perror("Error");
-			exit(-1);
-		}
-	}
-	else
-		wait(&stat);
 
-	return (0);
+	return (nchars_read);
 }
 
+/**
+ * parse_line - Parse a line into an array of arguments.
+ * @line: The line to parse.
+ * @d: The delimiter.
+ *
+ * Return: an array of arguments, or NULL on error.
+ */
+static char **parse_line(char *line, const char *d)
+{
+	int x;
+	int num_t = 0;
+	char *t;
+	char **args;
+
+	t = strtok(line, d);
+	while (t != NULL)
+	{
+		num_t++;
+		t = strtok(NULL, d);
+	}
+	num_t++;
+	args = malloc(sizeof(char *) * num_t);
+	if (args == NULL)
+	{
+		perror("error");
+		return (NULL);
+	}
+
+	t = strtok(line, d);
+	while (t != NULL)
+	{
+		args[x] = malloc(sizeof(char) * strlen(t));
+		strcpy(args[x], t);
+		x++;
+		t = strtok(NULL, d);
+	}
+
+	args[num_t - 1] = NULL;
+
+	return (args);
+}
 
 /**
- * main - ***
- * @argc: ***
- * @argv: ***
- * Return: ***
+ * main - The main function of the shell.
+ * @ac: The number of arguments.
+ * @argv: The arguments.
+ *
+ * Return: 0 on success, or -1 on error.
  */
-
-int main(int argc, char **argv)
+int main(int ac, char **argv)
 {
+	char *lin = NULL;
+	char **args;
+	ssize_t nchars_read;
 
-	int i;
-	char **tok;
-	size_t buf = BUFSIZ;
-	int p = 0;
-	char *b;
-
-	if (argc >= 2)
+	(void)ac;
+	(void)argv;
+	while (1)
 	{
-		if (execve(argv[1], argv, NULL) == -1)
+		nchars_read = get_line("$ ", lin, 1024);
+		if (nchars_read == -1)
 		{
-			perror("Error");
-			exit(-1);
-		}
-		return (0);
-	}
-
-	b = (char *)malloc(buf * sizeof(char));
-	if (b == NULL)
-	{
-		perror("Unable to allocate buffer");
-		exit(1);
-	}
-
-	do {
-		if (isatty(fileno(stdin)))
-		{
-			p = 1;
-			puts("cisfun$: ");
+			printf("Exiting\n");
+			return (-1);
 		}
 
-		getline(&b, &buf, stdin);
-		b[_strlen(b) - 1] = '\0';
-		tok = Tokens(b);
-		i = exe(tok);
-	} while (p && i != -1);
+		args = parse_line(lin, " \n");
+		if (args == NULL)
+		{
+			perror("error");
+			return (-1);
+		}
+
+		exe(args);
+
+		free(args);
+		free(lin);
+	}
 
 	return (0);
 }
