@@ -85,7 +85,6 @@ int main(int ac, char **argv)
 		nchars_read = get_line("#cisfun$ ", lin, 1024);
 		if (nchars_read == -1)
 		{
-			printf("Exiting\n");
 			return (-1);
 		}
 
