@@ -1,49 +1,72 @@
 #include "shell.h"
-/**
-* main - ***
-* @ac: ***
-* @av: ***
-* @envp: ***
-* Return: ***
-*/
 
-int main(int ac, char **av, char *envp[])
+/**
+ * free_data - ***
+ *
+ * @asuu: ***
+ * Return: ***
+ */
+void free_data(d_sh *asuu)
 {
-	char *l = NULL, *pat = NULL, *w = NULL;
-	char **y = NULL, **pats = NULL;
-	size_t bufsize = 0;
-	ssize_t linesize = 0;
-	(void)envp, (void)av;
-	if (ac < 1)
-		return (-1);
-	signal(SIGINT, ha);
-	while (1)
+	unsigned int x;
+
+	for (x = 0; asuu->_environ[x]; x++)
 	{
-		fre(y);
-		fre(pats);
-		free(pat);
-		pro();
-		linesize = getline(&l, &bufsize, stdin);
-		if (linesize < 0)
-			break;
-		forma.ln_count++;
-		if (l[linesize - 1] == '\n')
-			l[linesize - 1] = '\0';
-		y = tok(l);
-		if (y == NULL || *y == NULL || **y == '\0')
-			continue;
-		if (ch(y, l))
-			continue;
-		w = fin();
-		pats = tok(w);
-		pat = te(pats, y[0]);
-		if (!pat)
-			perror(av[0]);
-		else
-			exec(pat, y);
+		free(asuu->_environ[x]);
 	}
-	if (linesize < 0 && fla.interactive)
-		write(STDERR_FILENO, "\n", 1);
-	free(l);
-	return (0);
+
+	free(asuu->_environ);
+	free(asuu->pid);
+}
+
+/**
+ * set_data - ***
+ * @asuu: ***
+ * @av: ***
+ * Return: ***
+ */
+void set_data(d_sh *asuu, char **av)
+{
+	unsigned int x;
+
+	asuu->av = av;
+	asuu->input = NULL;
+	asuu->args = NULL;
+	asuu->status = 0;
+	asuu->counter = 1;
+
+	for (x = 0; environ[x]; x++)
+		;
+
+	asuu->_environ = malloc(sizeof(char *) * (x + 1));
+
+	for (x = 0; environ[x]; x++)
+	{
+		asuu->_environ[x] = stup(environ[x]);
+	}
+
+	asuu->_environ[x] = NULL;
+	asuu->pid = _ax_itoo(getpid());
+}
+
+/**
+ * main - ***
+ *
+ * @ac: ***
+ * @av: ***
+ *
+ * Return: ***
+ */
+int main(int ac, char **av)
+{
+	d_sh asuu;
+	(void) ac;
+
+	signal(SIGINT, _gt_sigi);
+	set_data(&asuu, av);
+	shell_loop(&asuu);
+	free_data(&asuu);
+	if (asuu.status < 0)
+		return (255);
+	return (asuu.status);
 }

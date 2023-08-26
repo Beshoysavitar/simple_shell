@@ -1,106 +1,144 @@
 #include "shell.h"
 
 /**
-* sc - ***
-* @e1: ***
-* @e2: ***
-*
-* Return: ***
-*/
-int sc(char *e1, char *e2)
+ * wout_comm - ***
+ * @in: ***
+ * Return: ***
+ */
+char *wout_comm(char *in)
 {
-	int x = 0, ot;
+	int x, u_tooooi;
 
-	while (*(e1 + x) == *(e2 + x) && *(e1 + x) != '\0')
+	u_tooooi = 0;
+	for (x = 0; in[x]; x++)
 	{
-		x++;
+		if (in[x] == '#')
+		{
+			if (x == 0)
+			{
+				free(in);
+				return (NULL);
+			}
+
+			if (in[x - 1] == ' ' || in[x - 1] == '\t' || in[x - 1] == ';')
+				u_tooooi = x;
+		}
 	}
-
-	ot = (*(e1 + x) - *(e2 + x));
-
-	return (ot);
+	if (u_tooooi != 0)
+	{
+		in = reloc(in, x, u_tooooi + 1);
+		in[u_tooooi] = '\0';
+	}
+	return (in);
 }
 
 /**
-* sl - ***
-* @s: ***
-*
-* Return: ***
-*/
-int sl(char *s)
+ * shell_loop - ***
+ * @ash: ***
+ *
+ * Return: ***
+ */
+void shell_loop(d_sh *ash)
 {
-	int co = 0;
+	char *npooi;
+	int loooi, x_eoooi;
 
-	while (*s != '\0')
+	loooi = 1;
+	while (loooi == 1)
 	{
-		co++;
-		s++;
-	}
-	return (co);
-}
+		write(STDIN_FILENO, "^-^ ", 4);
+		npooi = rea_line(&x_eoooi);
+		if (x_eoooi != -1)
+		{
+			npooi = wout_comm(npooi);
+			if (npooi == NULL)
+				continue;
 
+			if (cck_synta_err(ash, npooi) == 1)
+			{
+				ash->status = 2;
+				free(npooi);
+				continue;
+			}
+			npooi = rep_va(npooi, ash);
+			loooi = spl_conds(ash, npooi);
+			ash->counter += 1;
+			free(npooi);
+		}
+		else
+		{
+			loooi = 0;
+			free(npooi);
+		}
+	}
+}
 /**
-* sn - ***
-* @e1: ***
-* @e2: ***
-* @r: ***
-*
-* Return: ***
-*/
-int sn(char *e1, char *e2, int r)
+ * cmp_env_name - ***
+ * @nvooi: ***
+ * @namiooi: ***
+ *
+ * Return: ***
+ */
+int cmp_env_name(const char *nvooi, const char *namiooi)
 {
 	int x;
 
-	for (x = 0; e1[x] && e2[x] && x < r; x++)
+	for (x = 0; nvooi[x] != '='; x++)
 	{
-		if (e1[x] != e2[x])
-			return (e1[x] - e2[x]);
+		if (nvooi[x] != namiooi[x])
+		{
+			return (0);
+		}
 	}
-	return (0);
+	return (x + 1);
 }
 
 /**
-* sd - ***
-* @s: ***
-*
-* Return: ***
-*/
-char *sd(char *s)
+ * gtenv - ***
+ * @namiooi: ***
+ * @_environ: ***
+ *
+ * Return: ***
+ */
+char *gtenv(const char *namiooi, char **_environ)
 {
-	char *pt;
-	int x, le;
+	int x, movooi;
+	char *pr_envppoi;
 
-	if (s == NULL)
-		return (NULL);
-
-	le = sl(s);
-
-	pt = malloc(sizeof(char) * (le + 1));
-	if (!pt)
-		return (NULL);
-	for (x = 0; *s != '\0'; s++, x++)
-		pt[x] = s[0];
-
-	pt[x++] = '\0';
-	return (pt);
+	pr_envppoi = NULL;
+	movooi = 0;
+	for (x = 0; _environ[x]; x++)
+	{
+		movooi = cmp_env_name(_environ[x], namiooi);
+		if (movooi)
+		{
+			pr_envppoi = _environ[x];
+			break;
+		}
+	}
+	return (pr_envppoi + movooi);
 }
 
 /**
-* sh - ***
-* @s: ***
-* @c: ***
-*
-* Return: ***
-*/
-char *sh(char *s, char c)
+ * ___env - ***
+ *
+ * @ash: ***
+ * Return: ***
+ */
+int ___env(d_sh *ash)
 {
-	while (*s)
+	int x, y;
+
+	for (x = 0; ash->_environ[x]; x++)
 	{
-		if (*s == c)
-			return (s);
-		s++;
+
+		for (y = 0; ash->_environ[x][y]; y++)
+			;
+
+		write(STDOUT_FILENO, ash->_environ[x], y);
+		write(STDOUT_FILENO, "\n", 1);
 	}
-	if (!c)
-		return (s);
-	return (NULL);
+	ash->status = 0;
+
+	return (1);
 }
